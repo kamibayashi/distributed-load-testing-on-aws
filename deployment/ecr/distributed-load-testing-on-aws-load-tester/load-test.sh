@@ -70,7 +70,7 @@ if [ -z "$IPNETWORK" ]; then
     pypid=$!
     wait $pypid
     pypid=0
-else 
+else
     python3 -u $SCRIPT $IPNETWORK $IPHOSTS
 fi
 
@@ -90,10 +90,14 @@ if [ "$TEST_TYPE" != "simple" ]; then
   sed -i -e 's/<\/stringProp>//g' results.txt
   sed -i -e 's/ //g' results.txt
 
+  # CSVファイルを除外。ただし、jmeter_report.csvは除外しない
+  grep -v '\.csv$' results.txt > filtered_results.txt
+  grep 'jmeter_report\.csv$' results.txt >> filtered_results.txt
+
   echo "Files to upload as results"
-  cat results.txt
-  
-  files=(`cat results.txt`)
+  cat filtered_results.txt
+
+  files=(`cat filtered_results.txt`)
   for f in "${files[@]}"; do
     p="s3://$S3_BUCKET/results/$TEST_ID/JMeter_Result/$PREFIX/$UUID/$f"
     if [[ $f = /* ]]; then
